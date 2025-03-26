@@ -31,7 +31,40 @@ Position load_maze(const std::string& file_name) {
     // 6. Trate possíveis erros (arquivo não encontrado, formato inválido, etc.)
     // 7. Feche o arquivo após a leitura
     
-    return {-1, -1}; // Placeholder - substitua pelo valor correto
+    //1. abrir arquivo
+    std::ifstream file(file_name);
+    if (!file) {
+        std::cout << "Arquivo não encontrado.\n";
+        // return {-1, -1};
+    }
+
+    //2. Dimensoes do labirinto
+    file >> num_rows >> num_cols; // aloca na variável
+    // std::cout << num_rows;
+    // std::cout << num_cols;
+    file.ignore(); // pula uma linha
+
+    maze.resize(num_rows, std::vector<char>(num_cols)); //vetor de vetores
+    Position start_position = {-1, -1}; //inicializacao negativa p nao dar erro
+
+    // Lendo o conteúdo do labirinto
+    for (int i = 0; i < num_rows; i++) {
+        for (int j = 0; j < num_cols; j++) {
+            file.get(maze[i][j]); //le apenas um caractere
+            std::cout << maze[i][j] << "\n";
+            if (maze[i][j] == '\n') {
+                file.get(maze[i][j]); // Se encontrou uma quebra de linha, pegar próximo caractere
+            }
+            if (maze[i][j] == 'e') {
+                start_position = {i, j}; // guarda posicao de entrada
+            } else if (maze[i][j] != 'x' && maze[i][j] != '#' && maze[i][j] != 's') {
+                std::cout << "Caractere invalido encontrado:" << maze[i][j]<<"\n";
+                // return {-1, -1};
+            }
+        }
+    }
+    file.close();
+    return start_position;
 }
 
 // Função para imprimir o labirinto
@@ -40,6 +73,12 @@ void print_maze() {
     // 1. Percorra a matriz 'maze' usando um loop aninhado
     // 2. Imprima cada caractere usando std::cout
     // 3. Adicione uma quebra de linha (std::cout << '\n') ao final de cada linha do labirinto
+    for(int i=0; i<num_rows; i++){
+        for(int j=0; j<num_cols; j++){
+            std::cout << maze[i][j];
+        }
+        std::cout << "\n";
+    }
 }
 
 // Função para verificar se uma posição é válida
