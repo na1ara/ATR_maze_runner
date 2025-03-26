@@ -89,7 +89,14 @@ bool is_valid_position(int row, int col) {
     // 2. Verifique se a posição é um caminho válido (maze[row][col] == 'x')
     // 3. Retorne true se ambas as condições forem verdadeiras, false caso contrário
 
-    return false; // Placeholder - substitua pela lógica correta
+    // ve se esta dentro do mapa
+    if (row >= 0 && row < num_rows && col >= 0 && col < num_cols) {
+        // ve se pode
+        if (maze[row][col] == 'x' || maze[row][col] == 's') {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Função principal para navegar pelo labirinto
@@ -110,7 +117,45 @@ bool walk(Position pos) {
     //    c. Se walk retornar true, propague o retorno (retorne true)
     // 7. Se todas as posições foram exploradas sem encontrar a saída, retorne false
     
-    return false; // Placeholder - substitua pela lógica correta
+    if (maze[pos.row][pos.col] == 's') {
+        // esse eh o item 4 do escopo, porem se essa comparacao eh feita 
+        // apos marcacao de posicao visitada nao funciona
+        return true; // saiu
+    } 
+    maze[pos.row][pos.col] = '.'; //marca a posição atual como visitada
+
+    system("clear");
+    print_maze();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50)); //atraso de 50ms para visualizacao
+
+    //verificação das posições adjacentes (cima, baixo, esquerda, direita)
+    std::vector<Position> directions = {
+        {pos.row - 1, pos.col}, // Cima
+        {pos.row + 1, pos.col}, // Baixo
+        {pos.row, pos.col - 1}, // Esquerda
+        {pos.row, pos.col + 1}  // Direita
+    };
+
+    for (const auto& next_pos : directions) {
+        if (is_valid_position(next_pos.row, next_pos.col)) {
+            valid_positions.push(next_pos); // adicionando à pilha de posições válidas
+        }
+    }
+
+    //havendo posições válidas na pilha
+    while (!valid_positions.empty()) {
+        Position next_pos = valid_positions.top();
+        valid_positions.pop(); //removendo a próxima posição da pilha
+
+        // Chame walk recursivamente para esta posição
+        if (walk(next_pos)) {
+            return true; // Propague o retorno se encontrar a saída
+        }
+    }
+
+    // 7. Se todas as posições foram exploradas sem encontrar a saída, retorne false
+    return false;
 }
 
 int main(int argc, char* argv[]) {
